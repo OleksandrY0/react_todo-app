@@ -17,8 +17,8 @@ export const App: React.FC = () => {
     inputRef.current?.focus();
   }, [todos]);
 
-  const getFilteredTodos = (sortBy: SortBy) => {
-    switch (sortBy) {
+  const getFilteredTodos = (sortMethod: SortBy) => {
+    switch (sortMethod) {
       case 'All':
         return todos;
       case 'Active':

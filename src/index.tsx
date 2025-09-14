@@ -8,7 +8,7 @@ import { TodoProvider } from './context/TodoContext';
 const container = document.getElementById('root') as HTMLDivElement;
 
 createRoot(container).render(
-    <TodoProvider>
+  <TodoProvider>
     <App />
-  </TodoProvider>
+  </TodoProvider>,
 );
