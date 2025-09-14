@@ -35,6 +35,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
 
   useEffect(() => {
     const storedTodos = localStorage.getItem('todos');
+
     if (storedTodos) {
       setTodos(JSON.parse(storedTodos));
     }
@@ -51,11 +52,13 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       completed: false,
     };
     const updatedTodos = [...todos, newTodo];
+
     setTodos(updatedTodos);
   };
 
   const deleteTodo = (id: number) => {
     const updatedTodos = todos.filter(todo => todo.id !== id);
+
     setTodos(updatedTodos);
   };
 
@@ -63,19 +66,21 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     const updatedTodos = todos.map(todo =>
       todo.id === id ? { ...todo, completed: !todo.completed } : todo,
     );
+
     setTodos(updatedTodos);
   };
 
   const clearCompleted = () => {
     const updatedTodos = todos.filter(todo => !todo.completed);
+
     setTodos(updatedTodos);
   };
 
-  const completeAll = (todos: Todo[]) => {
-    if (todos.every(todo => todo.completed)) {
-      setTodos(todos.map(todo => ({ ...todo, completed: false })));
+  const completeAll = (todoList: Todo[]) => {
+    if (todoList.every(todo => todo.completed)) {
+      setTodos(todoList.map(todo => ({ ...todo, completed: false })));
     } else {
-      setTodos(todos.map(todo => ({ ...todo, completed: true })));
+      setTodos(todoList.map(todo => ({ ...todo, completed: true })));
     }
   };
 
@@ -86,12 +91,24 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       return;
     }
 
-    setTodos(todos.map(todo => todo.id === id ? {...todo, title: newTitle.trim()} : todo));
-  }
+    setTodos(
+      todos.map(todo =>
+        todo.id === id ? { ...todo, title: newTitle.trim() } : todo,
+      ),
+    );
+  };
 
   return (
     <TodoContext.Provider
-      value={{ todos, addTodo, deleteTodo, toggleTodo, clearCompleted, completeAll, editTodo }}
+      value={{
+        todos,
+        addTodo,
+        deleteTodo,
+        toggleTodo,
+        clearCompleted,
+        completeAll,
+        editTodo,
+      }}
     >
       {children}
     </TodoContext.Provider>

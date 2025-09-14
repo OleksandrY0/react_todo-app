@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { Todo, TodoContext } from '../../context/TodoContext';
 
 interface Props {
@@ -9,6 +9,7 @@ export const TodoList: React.FC<Props> = ({ todos, onEditComplete }) => {
   const { deleteTodo, toggleTodo, editTodo } = useContext(TodoContext);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingValue, setEditingValue] = useState('');
+  const wasEscaped = useRef(false);
 
   const handleEditStart = (todo: Todo) => {
     setEditingId(todo.id);
@@ -22,13 +23,6 @@ export const TodoList: React.FC<Props> = ({ todos, onEditComplete }) => {
     onEditComplete();
   };
 
-  const handleEditCancel = (id: number) => {
-    const todo = todos.find(t => t.id === id);
-    if (todo) setEditingValue(todo.title);
-    setEditingId(null);
-    onEditComplete();
-  };
-
   return (
     <>
       {todos.map(todo => (
@@ -38,8 +32,13 @@ export const TodoList: React.FC<Props> = ({ todos, onEditComplete }) => {
           className={`todo ${todo.completed ? 'completed' : ''} ${editingId === todo.id ? 'editing' : ''}`}
           onDoubleClick={() => handleEditStart(todo)}
         >
-          <label className="todo__status-label">
+          <label
+            className="todo__status-label"
+            htmlFor={`todo-checkbox-${todo.id}`}
+            aria-label="Toggle todo"
+          >
             <input
+              id={`todo-checkbox-${todo.id}`}
               data-cy="TodoStatus"
               type="checkbox"
               className="todo__status"
@@ -60,10 +59,26 @@ export const TodoList: React.FC<Props> = ({ todos, onEditComplete }) => {
                 data-cy="TodoTitleField"
                 value={editingValue}
                 onChange={e => setEditingValue(e.target.value)}
-                onBlur={() => handleEditSubmit(todo.id)}
                 onKeyUp={e => {
-                  if (e.key === 'Enter') handleEditSubmit(todo.id);
-                  if (e.key === 'Escape') handleEditCancel(todo.id);
+                  if (e.key === 'Enter') {
+                    handleEditSubmit(todo.id);
+                  }
+
+                  if (e.key === 'Escape') {
+                    wasEscaped.current = true;
+                    setEditingId(null);
+                    setEditingValue(todo.title);
+                    onEditComplete();
+                  }
+                }}
+                onBlur={() => {
+                  if (wasEscaped.current) {
+                    wasEscaped.current = false;
+                    setEditingId(null);
+                  } else {
+                    handleEditSubmit(todo.id);
+                    // wasEscaped.current = false;
+                  }
                 }}
                 autoFocus
               />
